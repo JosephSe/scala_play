@@ -11,6 +11,10 @@ case class Product(ean: Long, name: String, description: String) {
   override def toString = "%s - %s".format(ean, name)
 }
 
+case class Warehouse(id: Long, name: String)
+
+case class StockItem(id: Long, productId: Long, warehouseId: Long, quantity: Long)
+
 /**
  * Products data access
  */

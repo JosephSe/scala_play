@@ -1,5 +1,10 @@
 package controllers
 
+import java.awt.image.BufferedImage
+import java.io.ByteArrayOutputStream
+
+import org.krysalis.barcode4j.impl.code128.EAN128Bean
+import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider
 import play.api.mvc._
 import play.api.mvc.Controller
 import models.Product
@@ -59,7 +64,7 @@ object Products extends Controller {
    */
 //  private val productForm = makeProductForm("validation.ean.duplicate", isUniqueEan(_))
 
-  private val productForm = Form[Product] = Form {
+  private val productForm: Form[Product] = Form {
     mapping(
       "ean" -> longNumber.verifying(
       "validation.ean.duplicate", Product.findByEan(_).isEmpty),
@@ -161,6 +166,30 @@ object Products extends Controller {
           Redirect(routes.Products.show(updatedProduct.ean)).flashing(successMessage)
         }
       )
+    }
+  }
+
+  def ean13Barcode(ean: Long, mimeType: String): Array[Byte] = {
+    import java.io.ByteArrayInputStream
+
+    val BarcodeResolution = 72
+    val output: ByteArrayOutputStream = new ByteArrayOutputStream
+    val canvas: BitmapCanvasProvider = new BitmapCanvasProvider(output, mimeType, BarcodeResolution, BufferedImage.TYPE_BYTE_BINARY, false, 0)
+    val barcode = new EAN128Bean
+    barcode.generateBarcode(canvas, String valueOf ean)
+    canvas.finish
+    output.toByteArray
+  }
+
+  def barcode(ean: Long) = Action {
+    import java.lang.IllegalArgumentException
+    val MimeType = "image/png"
+    try {
+      val imageData: Array[Byte] = ean13Barcode(ean, MimeType)
+      Ok(imageData).as(MimeType)
+    } catch {
+      case e: IllegalArgumentException =>
+        BadRequest("Could not generate barcode. Error" + e.getMessage)
     }
   }
 }

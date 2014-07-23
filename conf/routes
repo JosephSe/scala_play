@@ -8,7 +8,8 @@ POST    /products/:ean              controllers.Products.update(ean: Long)
 PUT     /products/:ean              controllers.Products.update(ean: Long)
 GET     /products/:ean/edit         controllers.Products.edit(ean: Long)
 
-GET     /barcode/:ean               controllers.Barcodes.barcode(ean: Long)
+#GET     /barcode/:ean               controllers.Barcodes.barcode(ean: Long)
+GET     /barcode/:ean               controllers.Products.barcode(ean: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
